@@ -1,7 +1,33 @@
-use std::num::Float;
+#[path="defaults.rs"] mod defaults;
+use defaults::types::{Scalar, Vec3};
 
-pub type Scalar = f64;
-pub type Vec3 = (Scalar, Scalar, Scalar);
+pub fn approx_equal(a: Scalar, b: Scalar) -> bool {
+    (a-b).abs() < defaults::linear::EPSILON
+}
+
+pub fn scale_vector(x: &Vec3, c: Scalar) -> Vec3 {
+    (
+        x.0 * c,
+        x.1 * c,
+        x.2 * c
+    )
+}
+
+pub fn vector_sum(x: &Vec3, y: &Vec3) -> Vec3 {
+    (
+        x.0 + y.0,
+        x.1 + y.1,
+        x.2 + y.2
+    )
+}
+
+pub fn vector_diff(x: &Vec3, y: &Vec3) -> Vec3 {
+    (
+        x.0 - y.0,
+        x.1 - y.1,
+        x.2 - y.2
+    )
+}
 
 pub fn cross_product(x: &Vec3, y: &Vec3) -> Vec3 {
     (

@@ -1,4 +1,4 @@
-#[path = "defaults.rs"] mod defaults;
+#[path="defaults.rs"] mod defaults;
 
 pub struct Screen {
     width: usize,
@@ -22,6 +22,14 @@ impl Screen {
             height: defaults::screen::HEIGHT,
             pixels: Vec::new()
         }
+    }
+
+    pub fn horizontal_res(&self) -> usize {
+        self.width
+    }
+
+    pub fn vertical_res(&self) -> usize {
+        self.height
     }
 
     pub fn with_resolution(h_resolution: usize, v_resolution: usize) -> Self {
@@ -50,7 +58,7 @@ fn draw_pixel(value: PixelValue) {
     match value {
         PixelValue::OFF => print!(" "),
         PixelValue::DIM => print!("-"),
-        PixelValue::MEDIUM => print!("o"),
+        PixelValue::MEDIUM => print!("+"),
         PixelValue::BRIGHT => print!("#"),
     };
 }

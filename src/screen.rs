@@ -6,13 +6,7 @@ pub struct Screen {
     pixels: Vec<PixelValue>,
 }
 
-#[derive(Copy, Clone)]
-pub enum PixelValue {
-    OFF,
-    DIM,
-    MEDIUM,
-    BRIGHT,
-}
+pub type PixelValue = char;
 
 
 impl Screen {
@@ -44,7 +38,8 @@ impl Screen {
         self.pixels = pixel_data;
     }
 
-    pub fn draw(&self) {
+    pub fn refresh(&self) {
+        print!("\x1B[1;1H"); //clears screen, cursor to first row/col
         for y in 0..self.height {
             for x in 0..self.width {
                 draw_pixel(self.pixels[y * self.width + x]);
@@ -55,10 +50,5 @@ impl Screen {
 }
 
 fn draw_pixel(value: PixelValue) {
-    match value {
-        PixelValue::OFF => print!(" "),
-        PixelValue::DIM => print!("-"),
-        PixelValue::MEDIUM => print!("+"),
-        PixelValue::BRIGHT => print!("#"),
-    };
+    print!("{}", value);
 }

@@ -6,6 +6,7 @@ pub mod types {
 pub mod screen {
     pub const WIDTH: usize = 100;
     pub const HEIGHT: usize = 100;
+    pub const BLANK_PIXEL: char = ' ';
 }
 
 pub mod camera {

@@ -66,7 +66,7 @@ impl Scene {
                 }
 
                 if closest_normal.0 == f64::INFINITY {
-                    pixel_vals.push(PixelValue::OFF);
+                    pixel_vals.push(defaults::screen::BLANK_PIXEL);
                 } else {
                     pixel_vals.push(self.pixel_ray_brightness(&pixel_ray, &closest_normal.1, &self.light, closest_obj.1))
                 }
@@ -74,7 +74,7 @@ impl Scene {
         }
 
         screen.set_pixels(pixel_vals);
-        screen.draw();
+        screen.refresh();
     }
 
     fn camera_basis(&self) -> (Vec3, Vec3, Vec3) {
@@ -96,13 +96,29 @@ impl Scene {
         ray
     }
 
+    fn color_to_brightness(&self, color: Vec3) -> PixelValue {
+        let pixel_scale = r#".'`^",:;Il!i><~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$"#;
+        let color_mag = linear::magnitude_of(&color);
+        let color_brightness = color_mag / defaults::shading::MAX_COLOR_INTENISTY;
+        let pxl_value_idx = (color_brightness * (pixel_scale.len() as Scalar)) as usize;
+
+        //println!("Color is {}, {}, {}", color.0, color.1, color.2);
+        //println!("Color Mag is {} and brightness is {}", color_mag, color_brightness);
+
+        if pxl_value_idx >= pixel_scale.len() {
+            return pixel_scale.chars().nth(0).unwrap()
+        }
+
+        pixel_scale.chars().nth(pxl_value_idx).unwrap()
+    }
+
     fn pixel_ray_brightness(&self, pixel_ray: &Ray, normal: &Ray, light_source: &dyn Light, material: &Material) -> PixelValue {
         let k_d = material.diffuse_coefficient();
         let I = light_source.intensity();
-        let N = normal.orientation();
-        let L = linear::vector_diff(&normal.position(), &light_source.position());
-        let V = pixel_ray.orientation();
-        let R = linear::vector_diff(&linear::scale_vector(&N, linear::dot_product(&N, &L) * 2.0), &L);
+        let N = linear::normalized(&normal.orientation());
+        let L = linear::normalized(&linear::vector_diff(&normal.position(), &light_source.position()));
+        let V = linear::normalized(&pixel_ray.orientation());
+        let R = linear::normalized(&linear::vector_diff(&linear::scale_vector(&N, linear::dot_product(&N, &L) * 2.0), &L));
         let q = material.specular_coefficient();
         let k_s = material.specular_coefficient();
 
@@ -110,14 +126,6 @@ impl Scene {
         let C_b = linear::scale_vector(&(1.0, 1.0, 1.0), linear::dot_product(&V, &R).powf(q)*k_s*I);
         let C = linear::vector_diff(&C_a, &C_b);
 
-        let magn = linear::magnitude_of(&C);
-
-        if magn >= 3.0 * (defaults::shading::MAX_COLOR_INTENISTY / 4.0) {
-            PixelValue::BRIGHT
-        } else if magn >= (defaults::shading::MAX_COLOR_INTENISTY / 2.0) {
-            PixelValue::MEDIUM
-        } else {
-            PixelValue::DIM
-        }
+        self.color_to_brightness(C)
     }
 }
